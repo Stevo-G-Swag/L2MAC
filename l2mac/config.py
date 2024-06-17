@@ -59,7 +59,8 @@ class WandbConfig(BaseModel):
 
 
 class AdvancedAIModelConfig(BaseModel):
-    model_name: str = 'AdvancedModel'
+    ai_model_name: str = 'AdvancedModel'  # Renamed from model_name to ai_model_name to avoid conflicts
+    model_path: Optional[str] = None  # Default to None, should be set in the configuration file
     parameters: dict = {}
 
 

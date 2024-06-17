@@ -1,5 +1,7 @@
 import traceback
 from typing import Optional
+import signal
+from functools import wraps
 
 import typer
 from typing_extensions import Annotated
@@ -24,6 +26,21 @@ import tensorflow as tf
 
 app = typer.Typer(help="Generate based on the prompt with LLM-automatic Computer")
 
+def timeout(seconds=10, error_message="Model loading timed out"):
+    def decorator(func):
+        def _handle_timeout(signum, frame):
+            raise TimeoutError(error_message)
+
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+        return wraps(func)(wrapper)
+    return decorator
 
 @app.command()
 def run_l2mac(
@@ -60,6 +77,9 @@ def run_l2mac(
         DebuggingLevel, typer.Option(help="Whether to print full context-windows out.")
     ] = DebuggingLevel.info,
     init_config: Annotated[bool, typer.Option(help="Initialize the configuration file for L2MAC.")] = False,
+    use_advanced_ai: Annotated[
+        bool, typer.Option(help="Enable advanced AI capabilities for complex tasks.")
+    ] = False,
 ):
     """
     Generate based on the input prompt with LLM-automatic Computer (L2MAC).
@@ -90,6 +110,11 @@ def run_l2mac(
     if debugging_level == DebuggingLevel.debug:
         logger.info(f"Starting run \t | See log at : {log_path}")
         logger.info(f"[Main Config] {config}")
+    if use_advanced_ai:
+        logger.info("Advanced AI capabilities enabled.")
+        # Initialize the advanced AI model based on configuration
+        advanced_ai_model = tf.keras.models.load_model(config.advanced_ai_model.model_path)
+        logger.info(f"Advanced AI model loaded: {config.advanced_ai_model.model_name}")
     if config.setup.debug_mode:
         output_file_store = l2mac_internal(
             prompt_task,
