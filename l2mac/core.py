@@ -19,6 +19,9 @@ from l2mac.utils.run import (
     to_dotdict,
 )
 
+# Importing TensorFlow for advanced AI capabilities
+import tensorflow as tf
+
 app = typer.Typer(help="Generate based on the prompt with LLM-automatic Computer")
 
 

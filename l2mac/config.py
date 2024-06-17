@@ -5,6 +5,8 @@ from typing import Optional
 import yaml
 from pydantic import BaseModel, ValidationError
 
+# Import TensorFlow for advanced AI capabilities
+import tensorflow as tf
 
 class OpenAIRateLimitTier(str, Enum):
     free = "free"
@@ -56,11 +58,17 @@ class WandbConfig(BaseModel):
     track: bool = False
 
 
+class AdvancedAIModelConfig(BaseModel):
+    model_name: str = 'AdvancedModel'
+    parameters: dict = {}
+
+
 class L2MACConfig(BaseModel):
     llm: LLMCoreConfig
     llm_settings: LLMSettingsConfig = LLMSettingsConfig()
     setup: SetupConfig = SetupConfig()
     wandb: WandbConfig = WandbConfig()
+    advanced_ai_model: AdvancedAIModelConfig = AdvancedAIModelConfig()
 
 
 def find_config_file() -> Path:
